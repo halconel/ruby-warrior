@@ -7,7 +7,7 @@ class Player
 
 	# Инициализация
 	def initialize
-		@direction 	= :backward
+		@direction 	= :forward
 		@health		= 20
 		@whereami	= 0
 		@tactical_move	= false
@@ -21,39 +21,39 @@ class Player
 
 			# Значит делаем так:
 			# проверяем что воин не стоит носом в стену. 
-			if not have_to_pivot (warrior) then 
+#			if not have_to_pivot (warrior) then 
 
 				# пробуем двигаться, если это возможно, тогда фонкция движения должна возвращать истину если сдвинуться получилось. 
 	                        # ИСКЛЮЧЕНИЕ, если у него мало здорровья и ни кто его не атакует, то он должен выличить себя до нужного предела. 
-				if must_to_heal (warrior) then
+#				if must_to_heal (warrior) then
 
-					heal_rest (warrior) 
+#					heal_rest (warrior) 
 
-				elsif not move (warrior) then
+				if not move (warrior) then
                 		        # Если он не сдвинулся и не стал лечиться, то ему следует проверит, 
 					# что именно помешало движению, после чего решить что длаее делать. 
 					
 					# Если это пленный - освободить, 
-					if not check_captive_and_rescue (warrior) then
+#					if not check_captive_and_rescue (warrior) then
 
 						# если это враг - убить, 
-						if not warrior.feel (@direction).empty? then 
+#						if not warrior.feel (@direction).empty? then 
 							
-							warrior.attack! (@direction)
+#							warrior.attack! (@direction)
 						
 						# если это стена - развернуться.
-						else
+#						else
 
-							warrior.pivot!
+#							warrior.pivot!
 
-						end 
-                      		  	end
+#						end 
+#                     		  	end
 				end 
-			end          
+#			end          
 
 		# Конец цикла принятия решения
 
-    		@health = warrior.health
+#    		@health = warrior.health
  	end
         
 	# Функция проверки необходимости лечения
@@ -105,23 +105,23 @@ class Player
 		end		
 		
 		# Если стаим у стены, то развернемся
-		if warrior.feel (@direction).wall? then 
-			toward() 
-		end
+#		if warrior.feel (@direction).wall? then 
+#			toward() 
+#		end
 
 		# Если мало здоровья и нас лупят, тогда выполняем тактическое отступление
-		if warrior.health < @health and warrior. health < 10 and warrior.feel(@direction).empty?
-			@direction = :backward
-			@tacktical_move = true
-		end
+#		if warrior.health < @health and warrior. health < 10 and warrior.feel(@direction).empty?
+#			@direction = :backward
+#			@tacktical_move = true
+#		end
 
 		# Ноги в руки и пошли
-		if warrior.feel (@direction).empty? then 
+#		if warrior.feel (@direction).empty? then 
 			warrior.walk! (@direction)
 			return true
-		else
-			return false
-    		end
+#		else
+#			return false
+ #   		end
     	end
   
 	# Функция меняет направление выполняемых действий на обратную 
