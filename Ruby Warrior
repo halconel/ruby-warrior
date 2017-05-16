@@ -51,11 +51,15 @@ class Player
 				# Если это пленный - освободить, 
 				elsif check_captive_and_rescue(warrior) then
 
-				# если это враг - убить, 
-				elsif warrior.feel(@direction).enemy? then 
+				# если это враг прямо перед нами - рубить мечом, 
+				elsif look_for_enemy(warrior) == 0 then 
 							
 					warrior.attack!(@direction)
 						
+				# если враг далеко - стреляем из лука 
+				elsif look_for_enemy(warrior) > 0 then
+					
+					warior.shoot!(@direction) 
 				end 
 			end          
 
@@ -66,7 +70,10 @@ class Player
         
 	# Функция проверки необходимости лечения
     	def must_to_heal(warrior)
-		if warrior.health < 20 and warrior.health >= @health then
+		if warrior.health < 20 and 
+		   warrior.health >= @health and 
+		   not look_for_object(warrior, :stairs) then
+
 			return true 
 		else
 		  	return false
@@ -152,6 +159,40 @@ class Player
 		else
 			return false
 		end
-	end	
+	end
 
+	# Функция определят, что в трех шагах от нас есть только заданый объект
+	def look_for_object(warrior, object)
+		
+		result = true
+		
+		arr_space = warrior.look(@direction)
+		arr_space.each { |lock_space|
+			if lock_space != object and not lock_space.empty? then
+				result = false
+			end
+		}
+		
+		return result
+	end
+
+	# Функция проверяет три поля перд войном и возвращает индекс поля, на котором стоит враг
+	# если врага перед войном нет, то возвращает -1		
+	def look_for_enemy(warrior)
+
+		if warrior.feel(@direction).enemy? then
+			return 0
+		end
+		
+		index = 0
+		arr_space = warrior.look(@direction)
+		arr_space.each { |lock_space|
+			if lock_space.enemy? then
+				return index
+			end
+			index = index + 1
+		}
+		
+		return -1
+	end
 end
