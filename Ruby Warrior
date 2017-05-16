@@ -37,7 +37,12 @@ class Player
 				# должна возвращать истину если сдвинуться получилось. 
 	                        # ИСКЛЮЧЕНИЕ, если у него мало здорровья и ни кто его не атакует, 
 				# то он должен выличить себя до нужного предела. 
-				if must_to_heal(warrior) then
+				# если враг далеко - стреляем из лука 
+				if look_for_enemy(warrior) > 0 then
+					
+					warrior.shoot!(@direction) 
+
+				elsif must_to_heal(warrior) then
 
 					heal_rest(warrior) 
 
@@ -56,10 +61,6 @@ class Player
 							
 					warrior.attack!(@direction)
 						
-				# если враг далеко - стреляем из лука 
-				elsif look_for_enemy(warrior) > 0 then
-					
-					warior.shoot!(@direction) 
 				end 
 			end          
 
@@ -187,9 +188,14 @@ class Player
 		index = 0
 		arr_space = warrior.look(@direction)
 		arr_space.each { |lock_space|
+			
 			if lock_space.enemy? then
 				return index
+			elsif not lock_space.empty? then
+				return -1
 			end
+			
+
 			index = index + 1
 		}
 		
