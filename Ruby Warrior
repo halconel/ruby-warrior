@@ -1,0 +1,148 @@
+
+class Player
+  
+	#attr_accessor :direction
+	#attr_accessor :health
+	#attr_accessor :whereami
+
+	# Инициализация
+	def initialize
+		@direction 	= :backward
+		@health		= 20
+		@whereami	= 0
+		@tactical_move	= false
+	end 
+  
+ 	# Фунеция принятия решения 
+ 	def play_turn (warrior) 
+
+
+		# Основной цикл принятия решения
+
+			# Значит делаем так:
+			# проверяем что воин не стоит носом в стену. 
+			if not have_to_pivot (warrior) then 
+
+				# пробуем двигаться, если это возможно, тогда фонкция движения должна возвращать истину если сдвинуться получилось. 
+	                        # ИСКЛЮЧЕНИЕ, если у него мало здорровья и ни кто его не атакует, то он должен выличить себя до нужного предела. 
+				if must_to_heal (warrior) then
+
+					heal_rest (warrior) 
+
+				elsif not move (warrior) then
+                		        # Если он не сдвинулся и не стал лечиться, то ему следует проверит, 
+					# что именно помешало движению, после чего решить что длаее делать. 
+					
+					# Если это пленный - освободить, 
+					if not check_captive_and_rescue (warrior) then
+
+						# если это враг - убить, 
+						if not warrior.feel (@direction).empty? then 
+							
+							warrior.attack! (@direction)
+						
+						# если это стена - развернуться.
+						else
+
+							warrior.pivot!
+
+						end 
+                      		  	end
+				end 
+			end          
+
+		# Конец цикла принятия решения
+
+    		@health = warrior.health
+ 	end
+        
+	# Функция проверки необходимости лечения
+    	def must_to_heal (warrior)
+		if warrior.health < 20 and warrior.health >= @health then
+			return true 
+		else
+		  	return false
+		end
+	end
+
+	# Функция выполняет проверку возможности подлечиться и выполняет лечение 
+	def heal_rest (warrior)
+ 		
+		if warrior.health < 20 and 
+		   (warrior.feel (@direction).empty? or warrior.feel (@direction).wall?)  and 
+		   warrior.health >= @health then
+
+          		warrior.rest!
+			return true
+		else
+			return false
+          	end
+        end 
+      
+  
+    	# Функция спасия пленных
+    	def check_captive_and_rescue (warrior)
+      
+		if warrior.feel (@direction).captive? then 
+			warrior.rescue! (@direction)
+			return true
+		else
+			return false
+		end
+
+
+     	end
+
+  	# Функция выполняет проверку возможности двигаться и передвигает война в направлении @direction
+	# Возвращаемые значения:
+	# 	Истина 	- если функция walk! была вызвана
+	#	Ложь	- если проверка возможности двигаться провалена 
+  	def move (warrior)
+    
+		# Если мы тактически отступали передохнуть, то наше направление движение нужно поменять на движение вперед
+		if @tacktical_move then
+			@direction = :forward
+		end		
+		
+		# Если стаим у стены, то развернемся
+		if warrior.feel (@direction).wall? then 
+			toward() 
+		end
+
+		# Если мало здоровья и нас лупят, тогда выполняем тактическое отступление
+		if warrior.health < @health and warrior. health < 10 and warrior.feel(@direction).empty?
+			@direction = :backward
+			@tacktical_move = true
+		end
+
+		# Ноги в руки и пошли
+		if warrior.feel (@direction).empty? then 
+			warrior.walk! (@direction)
+			return true
+		else
+			return false
+    		end
+    	end
+  
+	# Функция меняет направление выполняемых действий на обратную 
+  	def toward (warrior)
+    		
+		# Поменяем направление на противоположенное  		
+		if @direction == :backward then
+      			@direction = :forward
+     		else 
+       			@direction = :backward
+    		end	
+  	end
+	
+	# Функция разворачивает война на 180 градусов, если воин стоит лицом к стине
+  	def have_to_pivot (warrior)
+		if warrior.feel (@direction).wall? then 
+			warrior.pivot!
+			return true
+		else
+			return false
+		end
+	end	
+
+end
