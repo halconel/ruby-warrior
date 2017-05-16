@@ -62,7 +62,7 @@ class Player
         
 	# Функция проверки необходимости лечения
     	def must_to_heal (warrior)
-		if warrior.health < 10 and warrior.health >= @health then
+		if warrior.health < 20 and warrior.health >= @health then
 			return true 
 		else
 		  	return false
