@@ -27,11 +27,11 @@ class Player
 				# должна возвращать истину если сдвинуться получилось. 
 	                        # ИСКЛЮЧЕНИЕ, если у него мало здорровья и ни кто его не атакует, 
 				# то он должен выличить себя до нужного предела. 
-#				if must_to_heal (warrior) then
+				if must_to_heal (warrior) then
 
-#					heal_rest (warrior) 
+					heal_rest (warrior) 
 
-				if not move (warrior) then
+				elsif not move (warrior) then
                 		        # Если он не сдвинулся и не стал лечиться, 
 					# то ему следует проверит, 
 					# что именно помешало движению, после чего 
@@ -57,12 +57,12 @@ class Player
 
 		# Конец цикла принятия решения
 
-#    		@health = warrior.health
+    		@health = warrior.health
  	end
         
 	# Функция проверки необходимости лечения
     	def must_to_heal (warrior)
-		if warrior.health < 20 and warrior.health >= @health then
+		if warrior.health < 10 and warrior.health >= @health then
 			return true 
 		else
 		  	return false
@@ -73,7 +73,7 @@ class Player
 	def heal_rest (warrior)
  		
 		if warrior.health < 20 and 
-		   (warrior.feel (@direction).empty? or warrior.feel (@direction).wall?)  and 
+		   (warrior.feel.empty? or warrior.feel.wall?)  and 
 		   warrior.health >= @health then
 
           		warrior.rest!
