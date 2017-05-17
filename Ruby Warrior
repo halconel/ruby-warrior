@@ -12,6 +12,7 @@ class Player
 		@whereami	= 0
 		@tactical_move	= false
 		@first_turn	= true
+		@is_enemy_behind_us = false
 	end 
   
  	# Фунеция принятия решения 
@@ -26,23 +27,40 @@ class Player
 
 				# На первом шаге, проверим, что у нас за спиной
 				if @first_turn then
-					if warrior.feel(:backward).empty? then
-						@direction = :backward
+					
+					arr_space = warrior.look(:backward)
+					arr_space.each do |lock_space|
+						if lock_space.captive?
+							@direction = :backward
+						end
 					end
 
 					@first_turn = false
+				end
+
+				@is_enemy_behind_us = false
+				arr_space = warrior.look(:backward)
+				arr_space.each do |lock_space|
+					if lock_space.enemy?
+						@is_enemy_behind_us = true
+					end
 				end
 
 				# пробуем двигаться, если это возможно, тогда фонкция движения 
 				# должна возвращать истину если сдвинуться получилось. 
 	                        # ИСКЛЮЧЕНИЕ, если у него мало здорровья и ни кто его не атакует, 
 				# то он должен выличить себя до нужного предела. 
-				# если враг далеко - стреляем из лука 
-				if look_for_enemy(warrior) > 0 then
+				# если враг далеко - стреляем из лука
+
+				if @is_enemy_behind_us then
+
+					warrior.shoot!(:backward)
+ 
+				elsif look_for_enemy(warrior) > 0 then
 					
 					warrior.shoot!(@direction) 
 
-				elsif must_to_heal(warrior) then
+				elsif low_health?(warrior) then
 
 					heal_rest(warrior) 
 
@@ -70,29 +88,14 @@ class Player
  	end
         
 	# Функция проверки необходимости лечения
-    	def must_to_heal(warrior)
-		if warrior.health < 20 and 
-		   warrior.health >= @health and 
-		   not look_for_object(warrior, :stairs) then
-
-			return true 
-		else
-		  	return false
-		end
+    	def low_health?(warrior)
+		(@health...20).cover? warrior.health
 	end
 
 	# Функция выполняет проверку возможности подлечиться и выполняет лечение 
 	def heal_rest(warrior)
  		
-		if warrior.health < 20 and 
-		   (warrior.feel(@direction).empty? or warrior.feel(@direction).wall?)  and 
-		   warrior.health >= @health then
-
-          		warrior.rest!
-			return true
-		else
-			return false
-          	end
+		warrior.rest! if warrior.feel(@direction).empty? || warrior.feel(@direction).wall?
         end 
       
   
